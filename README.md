@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Aplicação CRUD com DevOps
 
 Uma aplicação CRUD simples com interface gráfica em React, pronta para ser implantada em ambientes cloud usando ferramentas de DevOps.
@@ -1379,3 +1380,6 @@ Agora que você tem uma aplicação básica rodando, você pode:
 3. Configurar o banco de dados MySQL no RDS
 
 Para implementar a aplicação completa, siga o resto das instruções na seção anterior
+=======
+# crudaws
+>>>>>>> 27f580e98425d52683d6da0d09c6ba352209f2da
