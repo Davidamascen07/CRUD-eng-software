@@ -1,0 +1,127 @@
+---
+- name: Configurar servidor para a aplicação CRUD
+  hosts: app_servers
+  become: true
+  vars:
+    app_dir: /var/www/crud-app
+    node_version: 16
+    db_host: "{{ lookup('env', 'DB_HOST') | default('localhost', true) }}"
+    db_user: "{{ lookup('env', 'DB_USER') | default('crudadmin', true) }}"
+    db_password: "{{ lookup('env', 'DB_PASSWORD') | default('ChangeMe123!', true) }}"
+    db_name: "{{ lookup('env', 'DB_NAME') | default('crud_app', true) }}"
+  
+  tasks:
+    - name: Atualizar repositórios do sistema
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+      
+    - name: Atualizar repositórios do sistema (Amazon Linux)
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_distribution == 'Amazon'
+    
+    - name: Instalar dependências
+      package:
+        name:
+          - git
+          - curl
+          - nginx
+        state: present
+        
+    - name: Configurar repositório NodeJS (Amazon Linux)
+      shell: |
+        curl -sL https://rpm.nodesource.com/setup_{{ node_version }}.x | bash -
+      when: ansible_distribution == 'Amazon'
+      
+    - name: Configurar repositório NodeJS (Ubuntu/Debian)
+      shell: |
+        curl -sL https://deb.nodesource.com/setup_{{ node_version }}.x | bash -
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+        
+    - name: Instalar NodeJS e NPM
+      package:
+        name:
+          - nodejs
+        state: present
+        
+    - name: Criar diretório da aplicação
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+        
+    - name: Clonar/atualizar repositório da aplicação
+      git:
+        repo: "{{ git_repo | default('https://github.com/seu-usuario/crud-app.git') }}"
+        dest: "{{ app_dir }}"
+        version: "{{ git_branch | default('main') }}"
+        force: yes
+      become: false
+      ignore_errors: yes
+      
+    - name: Copiar arquivos da aplicação (alternativa)
+      synchronize:
+        src: ../
+        dest: "{{ app_dir }}"
+      delegate_to: localhost
+      when: git_repo is not defined
+        
+    - name: Instalar dependências do NodeJS
+      npm:
+        path: "{{ app_dir }}/backend"
+        state: present
+        
+    - name: Configurar variáveis de ambiente
+      template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/backend/.env"
+        mode: "0600"
+        
+    - name: Configurar Nginx
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/crud-app
+        mode: "0644"
+      notify: Reload Nginx
+      
+    - name: Habilitar site no Nginx
+      file:
+        src: /etc/nginx/sites-available/crud-app
+        dest: /etc/nginx/sites-enabled/crud-app
+        state: link
+      notify: Reload Nginx
+      
+    - name: Remover configuração default do Nginx
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      ignore_errors: yes
+      notify: Reload Nginx
+      
+    - name: Configurar serviço da aplicação
+      template:
+        src: templates/systemd.service.j2
+        dest: /etc/systemd/system/crud-app.service
+        mode: "0644"
+      notify: Reload systemd
+      
+    - name: Iniciar e habilitar o serviço da aplicação
+      systemd:
+        name: crud-app
+        state: started
+        enabled: yes
+      
+  handlers:
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+        
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes

@@ -1,0 +1,18 @@
+[Unit]
+Description=CRUD Application
+After=network.target
+
+[Service]
+Environment=NODE_ENV=production
+Environment=DB_HOST={{ db_host }}
+Environment=DB_USER={{ db_user }}
+Environment=DB_PASSWORD={{ db_password }}
+Environment=DB_NAME={{ db_name }}
+Type=simple
+User=www-data
+WorkingDirectory={{ app_dir }}/backend
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
