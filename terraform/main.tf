@@ -13,23 +13,12 @@ module "vpc" {
   project_name       = var.project_name
 }
 
-# Grupo de Seguranca
+# Grupo de Segurança
 module "security_groups" {
   source = "./modules/security_groups"
   
   vpc_id      = module.vpc.vpc_id
   project_name = var.project_name
-}
-
-# Instância EC2
-module "ec2" {
-  source = "./modules/ec2"
-  
-  instance_type   = var.instance_type
-  subnet_id       = module.vpc.public_subnet_id
-  security_group_id = module.security_groups.app_sg_id
-  key_name        = var.key_name
-  project_name    = var.project_name
 }
 
 # Banco de Dados RDS MySQL
@@ -45,13 +34,38 @@ module "rds" {
   project_name         = var.project_name
 }
 
+# Instância EC2
+module "ec2" {
+  source = "./modules/ec2"
+  
+  instance_type     = var.instance_type
+  subnet_id         = module.vpc.public_subnet_id
+  security_group_id = module.security_groups.app_sg_id
+  key_name          = var.key_name
+  project_name      = var.project_name
+  db_host           = module.rds.endpoint
+  db_username       = var.db_username
+  db_password       = var.db_password
+  db_name           = var.db_name
+}
+
 output "ec2_public_ip" {
   value = module.ec2.public_ip
-  description = "O endereco IP público da instância EC2"
+  description = "O endereço IP público da instância EC2"
 }
 
 output "rds_endpoint" {
   value = module.rds.endpoint
   description = "O endpoint de conexão da instância RDS"
+}
+
+output "application_url" {
+  value = "http://${module.ec2.public_ip}:3001"
+  description = "URL para acessar a aplicação"
+}
+
+output "ssh_command" {
+  value = "ssh -i ~/.ssh/crud-app-key.pem ec2-user@${module.ec2.public_ip}"
+  description = "Comando para conectar via SSH"
 }
 
