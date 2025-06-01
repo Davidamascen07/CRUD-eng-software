@@ -88,9 +88,8 @@ O servidor estará rodando em `http://localhost:3001`
 
 ### 3. Configure o Frontend
 ```bash
-cd frontend
-npm install
-npm start
+
+
 ```
 A aplicação estará disponível em `http://localhost:3000`
 
