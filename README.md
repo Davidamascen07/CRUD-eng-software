@@ -419,7 +419,7 @@ Este projeto está sob licença MIT. Veja [LICENSE](LICENSE) para detalhes.
 
 ## 👥 Equipe
 
-- **Desenvolvedor**: David Damasceno
+- **Desenvolvedor**: David Damasceno, Gabriel Heleno
 - **Repositório**: https://github.com/Davidamascen07/CRUD-eng-software
 
 ## 📞 Suporte
