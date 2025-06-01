@@ -21,19 +21,6 @@ module "security_groups" {
   project_name = var.project_name
 }
 
-# Banco de Dados RDS MySQL
-module "rds" {
-  source = "./modules/rds"
-  
-  db_subnet_group_name = module.vpc.db_subnet_group_name
-  db_instance_class    = var.db_instance_class
-  db_name              = var.db_name
-  db_username          = var.db_username
-  db_password          = var.db_password
-  security_group_id    = module.security_groups.db_sg_id
-  project_name         = var.project_name
-}
-
 # Instância EC2
 module "ec2" {
   source = "./modules/ec2"
@@ -43,10 +30,10 @@ module "ec2" {
   security_group_id = module.security_groups.app_sg_id
   key_name          = var.key_name
   project_name      = var.project_name
-  db_host           = module.rds.endpoint
-  db_username       = var.db_username
-  db_password       = var.db_password
-  db_name           = var.db_name
+  db_host           = "localhost"  # SQLite é local
+  db_username       = ""           # Não necessário para SQLite
+  db_password       = ""           # Não necessário para SQLite  
+  db_name           = ""           # Não necessário para SQLite
 }
 
 output "ec2_public_ip" {
@@ -54,18 +41,18 @@ output "ec2_public_ip" {
   description = "O endereço IP público da instância EC2"
 }
 
-output "rds_endpoint" {
-  value = module.rds.endpoint
-  description = "O endpoint de conexão da instância RDS"
-}
-
 output "application_url" {
   value = "http://${module.ec2.public_ip}:3001"
-  description = "URL para acessar a aplicação"
+  description = "URL para acessar a aplicação CRUD com SQLite"
 }
 
 output "ssh_command" {
   value = "ssh -i ~/.ssh/crud-app-key.pem ec2-user@${module.ec2.public_ip}"
   description = "Comando para conectar via SSH"
+}
+
+output "database_info" {
+  value = "SQLite local na instância - arquivo: /home/ec2-user/app/database.sqlite"
+  description = "Informações sobre o banco de dados"
 }
 

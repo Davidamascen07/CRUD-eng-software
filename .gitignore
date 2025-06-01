@@ -1,39 +1,163 @@
-# Dependências
-node_modules/
-/.pnp
-.pnp.js
+# ===================================
+# DEPENDÊNCIAS E PACOTES
+# ===================================
 
-# Arquivos de ambiente
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Package managers (manter apenas na raiz se necessário)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ===================================
+# ARQUIVOS DE AMBIENTE E CONFIGURAÇÃO
+# ===================================
+
+# Environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
+
+# Editor e IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===================================
+# ARQUIVOS SENSÍVEIS ESPECÍFICOS
+# ===================================
+
+# Arquivos que foram commitados por engano
+database.sqlite
+test-local.js
+package.json
+*.sqlite*
+
+# Apenas manter package.json das pastas específicas
+!frontend/package.json
+!backend/package.json
+
+# ===================================
+# FRONTEND (REACT)
+# ===================================
+
+# Build outputs
+frontend/build/
+frontend/dist/
+frontend/.next/
+frontend/out/
+
+# Cache
+frontend/.eslintcache
+frontend/.stylelintcache
+
+# Coverage reports
+frontend/coverage/
+
+# ===================================
+# BACKEND (NODE.JS)
+# ===================================
+
+# Build outputs
+backend/build/
+backend/dist/
 
 # Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+backend/logs/
+backend/*.log
 
-# Build
-/frontend/build
-/frontend/dist
+# Cache
+backend/.cache/
 
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.backup
-*.tfvars
+# Coverage reports
+backend/coverage/
+
+# ===================================
+# BANCO DE DADOS
+# ===================================
+
+# SQLite databases (todos os locais)
+*.sqlite
+*.sqlite3
+*.db
+database.sqlite*
+backend/database.sqlite*
+
+# Backup databases
+*.sql.backup
+*.dump
+
+# ===================================
+# TERRAFORM
+# ===================================
+
+# Terraform state files
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfstate.backup
+
+# Terraform variable files (pode conter dados sensíveis)
+terraform/*.tfvars
+terraform/*.tfvars.json
+terraform/terraform.tfvars*
+terraform/variables.auto.tfvars*
+
+# Terraform CLI configuration
 .terraformrc
 terraform.rc
-.terraform.lock.hcl
+terraform/.terraform.lock.hcl
 
-# Arquivos do sistema
-.DS_Store
-Thumbs.db
+# ===================================
+# AWS E CHAVES
+# ===================================
 
-# Chaves SSH e certificados
+# AWS credentials
+.aws/
+aws-credentials
+credentials
+
+# SSH keys e certificados
 *.pem
 *.key
 *.pub
+*.p12
+*.pfx
 crud-app-key*
+keys/
+
+# ===================================
+# ARQUIVOS NA RAIZ QUE NÃO DEVEM SER COMMITADOS
+# ===================================
+
+# Scripts de teste na raiz
+/test-local.js
+/package.json
+/package-lock.json
+
+# Arquivos SQLite na raiz
+/database.sqlite*
+/*.sqlite*
+/*.db
+
+# ===================================
+# MANTER APENAS ESTAS PASTAS E ARQUIVOS
+# ===================================
+
+# Estrutura que DEVE ser mantida:
+# /frontend/
+# /backend/
+# /terraform/
+# /README*.md
+# /.gitignore

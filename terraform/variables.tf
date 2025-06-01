@@ -30,7 +30,7 @@ variable "availability_zone" {
 
 variable "instance_type" {
   description = "Tipo de instância EC2"
-  default     = "t2.micro"
+  default     = "t2.micro"  # Mudança para t2.micro (Free Tier)
 }
 
 variable "key_name" {
@@ -57,4 +57,34 @@ variable "db_password" {
   description = "Senha para o banco de dados"
   sensitive   = true
   default     = "ChangeMe123!" # Alterar para uma senha segura em produção
+}
+
+variable "app_port" {
+  description = "Porta da aplicação"
+  default     = 3001
+}
+
+variable "use_rds" {
+  description = "Usar RDS ou SQLite local"
+  default     = false
+}
+
+variable "use_sqlite" {
+  description = "Usar SQLite como banco de dados padrão"
+  default     = true
+}
+
+variable "sqlite_path" {
+  description = "Caminho do arquivo SQLite na instância"
+  default     = "/home/ec2-user/app/database.sqlite"
+}
+
+variable "local_test_mode" {
+  description = "Modo de teste local (não criar recursos AWS)"
+  default     = false
+}
+
+variable "local_sqlite_path" {
+  description = "Caminho do SQLite para teste local"
+  default     = "./database.sqlite"
 }

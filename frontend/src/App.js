@@ -7,7 +7,11 @@ import ItemModal from './components/ItemModal';
 import ConfirmModal from './components/ConfirmModal';
 import Toast from './components/Toast';
 
-const API_URL = '/api/items';
+// Configuração da API melhorada para produção com SQLite
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? `${window.location.protocol}//${window.location.hostname}:3001` 
+  : 'http://localhost:3001';
+const API_URL = `${API_BASE_URL}/api/items`;
 
 function App() {
   const [items, setItems] = useState([]);
