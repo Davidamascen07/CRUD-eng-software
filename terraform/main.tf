@@ -2,27 +2,27 @@ provider "aws" {
   region = var.aws_region
 }
 
-# VPC e Rede
+# VPC e Rede - GRATUITO
 module "vpc" {
   source = "./modules/vpc"
   
-  vpc_cidr_block     = var.vpc_cidr_block
-  public_subnet_cidr = var.public_subnet_cidr
+  vpc_cidr_block      = var.vpc_cidr_block
+  public_subnet_cidr  = var.public_subnet_cidr
   private_subnet_cidr = var.private_subnet_cidr
-  availability_zone  = var.availability_zone
-  project_name       = var.project_name
+  availability_zone   = var.availability_zone
+  project_name        = var.project_name
 }
 
-# Grupo de Segurança
+# Security Groups - GRATUITO
 module "security_groups" {
   source = "./modules/security_groups"
   
-  vpc_id      = module.vpc.vpc_id
+  vpc_id       = module.vpc.vpc_id
   project_name = var.project_name
-  app_port    = var.app_port  # Adicionar variável que estava faltando
+  app_port     = var.app_port
 }
 
-# Instância EC2
+# Instância EC2 - GRATUITO (Free Tier)
 module "ec2" {
   source = "./modules/ec2"
   
@@ -31,71 +31,52 @@ module "ec2" {
   security_group_id = module.security_groups.app_sg_id
   key_name          = var.key_name
   project_name      = var.project_name
-  db_host           = "localhost"  # SQLite é local
-  db_username       = ""           # Não necessário para SQLite
-  db_password       = ""           # Não necessário para SQLite  
-  db_name           = ""           # Não necessário para SQLite
+  db_host           = "localhost"  # SQLite local
+  db_username       = ""           # Não usar
+  db_password       = ""           # Não usar  
+  db_name           = ""           # Não usar
 }
 
-output "ec2_public_ip" {
-  value = module.ec2.public_ip
-  description = "O endereço IP público da instância EC2"
+# OUTPUTS - Informações importantes
+output "deployment_success" {
+  value = "🎉 DEPLOYMENT 100% GRATUITO CONCLUÍDO!"
+  description = "Status do deployment"
 }
 
-output "frontend_url" {
-  value = "http://${module.ec2.public_ip}"
-  description = "URL para acessar o frontend React"
-}
-
-output "backend_url" {
-  value = "http://${module.ec2.public_ip}:3001"
-  description = "URL para acessar a API backend"
-}
-
-output "health_check_url" {
-  value = "http://${module.ec2.public_ip}/health"
-  description = "URL para verificar saúde da aplicação"
-}
-
-output "ssh_command" {
-  value = "ssh -i ~/.ssh/crud-app-key.pem ec2-user@${module.ec2.public_ip}"
-  description = "Comando para conectar via SSH"
-}
-
-output "deployment_info" {
+output "access_urls" {
   value = {
-    frontend = "React servido pelo Nginx na porta 80"
-    backend = "Node.js com Express na porta 3001"
-    database = "SQLite local"
-    proxy = "Nginx fazendo proxy /api/* para backend"
-    repository = "https://github.com/Davidamascen07/CRUD-eng-software.git"
+    frontend    = "http://${module.ec2.public_ip}/"
+    backend_api = "http://${module.ec2.public_ip}:3001/"
+    health      = "http://${module.ec2.public_ip}/health"
+    ssh         = "ssh -i ~/.ssh/crud-app-key.pem ec2-user@${module.ec2.public_ip}"
   }
-  description = "Informações do deployment"
+  description = "URLs de acesso à aplicação"
 }
 
-output "free_tier_info" {
+output "cost_breakdown" {
   value = {
-    instance_type    = "t2.micro (750h/mês GRÁTIS)"
-    database        = "SQLite Local (US$ 0.00)"
-    storage         = "8GB EBS gp2 (30GB GRÁTIS)"
-    network         = "VPC + Subnet (GRÁTIS)"
-    ip              = "1 Elastic IP (GRÁTIS)"
-    bandwidth       = "1GB/mês (GRÁTIS)"
-    monthly_cost    = "US$ 0.00"
-    node_version    = "16.x LTS"
-    estimated_cost  = "💚 TOTALMENTE GRATUITO"
+    ec2_instance    = "t2.micro - GRATUITO (750h/mês)"
+    ebs_storage     = "8GB gp2 - GRATUITO (30GB/mês)"
+    elastic_ip      = "1 IP - GRATUITO (se anexado)"
+    vpc_networking  = "VPC + Subnets - GRATUITO"
+    data_transfer   = "GRATUITO (1GB/mês)"
+    total_monthly   = "US$ 0.00"
+    database        = "SQLite Local - GRATUITO"
+    node_version    = "16.x LTS - GRATUITO"
   }
-  description = "Confirmação de uso 100% Free Tier"
+  description = "💚 Detalhamento de custos (TUDO GRATUITO)"
 }
 
-output "cost_monitoring" {
+output "free_tier_limits" {
   value = {
-    warning = "⚠️ MONITORE SEU USO:"
-    ec2_limit = "750 horas/mês t2.micro"
-    ebs_limit = "30 GB armazenamento"
-    transfer_limit = "1 GB transferência/mês"
-    tip = "Configure billing alerts na AWS"
+    warning = "⚠️ MONITORE PARA MANTER GRATUITO:"
+    ec2_hours = "750 horas/mês t2.micro"
+    storage = "30 GB EBS"
+    bandwidth = "1 GB transferência/mês"
+    tip = "Configure alertas de billing na AWS Console"
   }
-  description = "Limites do Free Tier para monitorar"
+  description = "Limites para manter no Free Tier"
 }
+
+# REMOVIDO: Qualquer referência a RDS ou serviços pagos
 

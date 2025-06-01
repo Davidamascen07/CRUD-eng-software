@@ -34,16 +34,16 @@ resource "aws_instance" "app_server" {
               curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
               yum install -y nodejs
               
-              # Verificar versões instaladas
+              # Verificar versoes instaladas
               echo "Node.js version: $(node --version)"
               echo "NPM version: $(npm --version)"
               
-              # Configurar diretórios
+              # Configurar diretorios
               mkdir -p /home/ec2-user/app
               cd /home/ec2-user/
               
-              # Clonar repositório (gratuito)
-              echo "Clonando repositório GitHub..."
+              # Clonar repositorio (gratuito)
+              echo "Clonando repositorio GitHub..."
               git clone https://github.com/Davidamascen07/CRUD-eng-software.git
               cd CRUD-eng-software
               
@@ -53,10 +53,10 @@ resource "aws_instance" "app_server" {
               echo "Configurando backend com SQLite (gratuito)..."
               cd backend
               
-              # Instalar dependências
+              # Instalar dependencias
               npm install --production --no-optional
               
-              # Configurar ambiente para produção gratuita
+              # Configurar ambiente para producao gratuita
               cat > .env << 'EOFENV'
 NODE_ENV=production
 PORT=3001
@@ -70,15 +70,15 @@ EOFENV
               const db = new sqlite3.Database('./database.sqlite');
               db.serialize(() => {
                 db.run('CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT, status TEXT DEFAULT \"active\", createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP)');
-                db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (1, \"Deploy AWS Free Tier\", \"Aplicação rodando gratuitamente na AWS\", \"active\")');
-                db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (2, \"Node.js 16 LTS\", \"Versão estável e gratuita\", \"active\")');
+                db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (1, \"Deploy AWS Free Tier\", \"Aplicacao rodando gratuitamente na AWS\", \"active\")');
+                db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (2, \"Node.js 16 LTS\", \"Versao estavel e gratuita\", \"active\")');
                 db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (3, \"SQLite Banco\", \"Banco de dados local sem custos\", \"active\")');
               });
               db.close();
               console.log('Banco SQLite inicializado com sucesso');
               "
               
-              # Serviço systemd para backend
+              # Servico systemd para backend
               cat > /etc/systemd/system/crud-backend.service << 'EOFSVC'
 [Unit]
 Description=CRUD Backend API - Free Tier
@@ -108,10 +108,10 @@ EOFSVC
               echo "Configurando frontend React (gratuito)..."
               cd ../frontend
               
-              # Instalar dependências de produção
+              # Instalar dependencias de producao
               npm ci --production --no-optional
               
-              # Build otimizado para produção
+              # Build otimizado para producao
               export GENERATE_SOURCEMAP=false
               export INLINE_RUNTIME_CHUNK=false
               npm run build
@@ -121,10 +121,10 @@ EOFSVC
               # ==========================================
               echo "Configurando Nginx (gratuito)..."
               
-              # Configuração otimizada para Free Tier
+              # Configuracao otimizada para Free Tier
               cat > /etc/nginx/nginx.conf << 'EOFNGINX'
 user nginx;
-worker_processes 1;  # Mínimo para t2.micro
+worker_processes 1;  # Minimo para t2.micro
 error_log /var/log/nginx/error.log warn;
 pid /run/nginx.pid;
 
@@ -136,18 +136,18 @@ http {
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
     
-    # Logs mínimos para economizar I/O
+    # Logs minimos para economizar I/O
     access_log off;
     error_log /var/log/nginx/error.log warn;
     
-    # Otimizações para Free Tier
+    # Otimizacoes para Free Tier
     sendfile on;
     tcp_nopush on;
     tcp_nodelay on;
     keepalive_timeout 30;
     client_max_body_size 1m;
     
-    # Compressão para economizar bandwidth
+    # Compressao para economizar bandwidth
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
     
@@ -158,7 +158,7 @@ http {
         root /home/ec2-user/CRUD-eng-software/frontend/build;
         index index.html;
         
-        # Cache para arquivos estáticos
+        # Cache para arquivos estaticos
         location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
             expires 1y;
             add_header Cache-Control "public, immutable";
@@ -187,13 +187,13 @@ http {
 }
 EOFNGINX
               
-              # Ajustar permissões
+              # Ajustar permissoes
               chown -R ec2-user:ec2-user /home/ec2-user/CRUD-eng-software
               
               # ==========================================
-              # INICIALIZAÇÃO - SEM CUSTOS EXTRAS
+              # INICIALIZACAO - SEM CUSTOS EXTRAS
               # ==========================================
-              echo "Iniciando serviços gratuitos..."
+              echo "Iniciando servicos gratuitos..."
               
               # Iniciar backend
               systemctl daemon-reload
@@ -204,15 +204,15 @@ EOFNGINX
               systemctl enable nginx
               systemctl start nginx
               
-              # Aguardar inicialização
+              # Aguardar inicializacao
               sleep 15
               
               # ==========================================
-              # VERIFICAÇÕES FINAIS
+              # VERIFICACOES FINAIS
               # ==========================================
               echo "Verificando deployment gratuito..."
               
-              # Status dos serviços
+              # Status dos servicos
               echo "=== Status Backend ==="
               systemctl status crud-backend --no-pager -l
               
@@ -226,21 +226,21 @@ EOFNGINX
               echo "=== Teste Frontend ==="
               curl -s http://localhost/ | head -5
               
-              # Informações finais
+              # Informacoes finais
               PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
               echo "=========================================="
-              echo "🎉 DEPLOYMENT GRATUITO CONCLUÍDO!"
+              echo "DEPLOYMENT GRATUITO CONCLUIDO!"
               echo "=========================================="
-              echo "💻 Frontend: http://$PUBLIC_IP/"
-              echo "🔌 Backend:  http://$PUBLIC_IP:3001/"
-              echo "❤️ Health:   http://$PUBLIC_IP/health"
-              echo "📊 Custos:   US$ 0.00 (Free Tier)"
-              echo "🗄️ Banco:    SQLite Local"
-              echo "⚡ Node.js:  $(node --version)"
+              echo "Frontend: http://$PUBLIC_IP/"
+              echo "Backend:  http://$PUBLIC_IP:3001/"
+              echo "Health:   http://$PUBLIC_IP/health"
+              echo "Custos:   US$ 0.00 (Free Tier)"
+              echo "Banco:    SQLite Local"
+              echo "Node.js:  $(node --version)"
               echo "=========================================="
               
               # Log de sucesso
-              echo "$(date): Deployment FREE TIER concluído com sucesso" >> /var/log/deployment.log
+              echo "$(date): Deployment FREE TIER concluido com sucesso" >> /var/log/deployment.log
               EOF
   
   tags = {

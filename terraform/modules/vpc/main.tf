@@ -1,4 +1,4 @@
-# VPC
+# VPC - GRATUITA
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_support   = true
@@ -6,10 +6,11 @@ resource "aws_vpc" "main" {
   
   tags = {
     Name = "${var.project_name}-vpc"
+    Cost = "Free"
   }
 }
 
-# Subnet pública
+# Subnet pública - GRATUITA
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr
@@ -18,10 +19,11 @@ resource "aws_subnet" "public" {
   
   tags = {
     Name = "${var.project_name}-public-subnet"
+    Cost = "Free"
   }
 }
 
-# Subnet privada
+# Subnet privada - GRATUITA (mas não usada para evitar custos de NAT)
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private_subnet_cidr
@@ -29,30 +31,22 @@ resource "aws_subnet" "private" {
   
   tags = {
     Name = "${var.project_name}-private-subnet"
+    Cost = "Free"
+    Usage = "Reserved-Not-Used"
   }
 }
 
-# Segunda subnet privada em uma zona de disponibilidade diferente
-resource "aws_subnet" "private2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"
-  availability_zone = "us-east-1b"  # Corrigido para us-east-1b
-  
-  tags = {
-    Name = "${var.project_name}-private-subnet-2"
-  }
-}
-
-# Internet Gateway
+# Internet Gateway - GRATUITO
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
   
   tags = {
     Name = "${var.project_name}-igw"
+    Cost = "Free"
   }
 }
 
-# Route Table
+# Route Table - GRATUITA
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
   
@@ -63,21 +57,15 @@ resource "aws_route_table" "public" {
   
   tags = {
     Name = "${var.project_name}-public-rt"
+    Cost = "Free"
   }
 }
 
-# Route Table Association
+# Route Table Association - GRATUITA
 resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
 
-# DB Subnet Group
-resource "aws_db_subnet_group" "main" {
-  name       = "${var.project_name}-db-subnet-group"
-  subnet_ids = [aws_subnet.private.id, aws_subnet.private2.id]
-  
-  tags = {
-    Name = "${var.project_name}-db-subnet-group"
-  }
-}
+# REMOVIDO: DB Subnet Group (não necessário para SQLite)
+# REMOVIDO: Segunda subnet privada (não necessária para Free Tier)
