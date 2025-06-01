@@ -7,9 +7,9 @@ import ItemModal from './components/ItemModal';
 import ConfirmModal from './components/ConfirmModal';
 import Toast from './components/Toast';
 
-// Configuração da API melhorada para produção com SQLite
+// Configuração da API otimizada para produção
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? `${window.location.protocol}//${window.location.hostname}:3001` 
+  ? '' // Em produção, usar relative URL (Nginx faz proxy)
   : 'http://localhost:3001';
 const API_URL = `${API_BASE_URL}/api/items`;
 

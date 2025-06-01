@@ -64,6 +64,21 @@ variable "app_port" {
   default     = 3001
 }
 
+variable "frontend_port" {
+  description = "Porta do frontend React"
+  default     = 3000
+}
+
+variable "github_repo" {
+  description = "URL do repositório GitHub"
+  default     = "https://github.com/Davidamascen07/CRUD-eng-software.git"
+}
+
+variable "node_version" {
+  description = "Versão do Node.js"
+  default     = "16"  # Mantendo versão 16 como solicitado
+}
+
 variable "use_rds" {
   description = "Usar RDS ou SQLite local"
   default     = false  # Manter false para evitar custos do RDS
@@ -76,7 +91,7 @@ variable "use_sqlite" {
 
 variable "sqlite_path" {
   description = "Caminho do arquivo SQLite na instância"
-  default     = "/home/ec2-user/app/database.sqlite"
+  default     = "/home/ec2-user/CRUD-eng-software/backend/database.sqlite"  # Corrigir caminho
 }
 
 variable "local_test_mode" {

@@ -6,238 +6,249 @@ resource "aws_instance" "app_server" {
   vpc_security_group_ids = [var.security_group_id]
   key_name               = var.key_name
   
-  # Configurações Free Tier
-  monitoring                  = false
-  associate_public_ip_address = true
+  # Configurações Free Tier - SEM CUSTOS
+  monitoring                  = false  # Monitoramento detalhado é PAGO
+  associate_public_ip_address = true   # IP público automático é GRATUITO
   
-  # Volume raiz otimizado para Free Tier
+  # Volume raiz Free Tier - 30GB gratuitos
   root_block_device {
-    volume_type           = "gp2"
-    volume_size           = 8
-    delete_on_termination = true
-    encrypted             = false
+    volume_type           = "gp2"    # gp2 é gratuito até 30GB
+    volume_size           = 8        # Bem dentro do limite gratuito
+    delete_on_termination = true     # Evitar custos órfãos
+    encrypted             = false    # Criptografia pode gerar custos
   }
   
-  # Script de inicialização corrigido
+  # Script 100% gratuito para Free Tier
   user_data = <<-EOF
               #!/bin/bash
               exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-              echo "Iniciando configuração da instância..."
+              echo "=========================================="
+              echo "Deploy GRATUITO AWS Free Tier - Node.js 16"
+              echo "=========================================="
               
+              # Atualizar sistema (gratuito)
               yum update -y
-              yum install -y git nodejs npm sqlite3 htop
+              yum install -y git htop nginx
               
-              echo "NODE_ENV=production" >> /etc/environment
-              echo "PORT=3001" >> /etc/environment
-              echo "USE_SQLITE=true" >> /etc/environment
-              echo "SQLITE_PATH=/home/ec2-user/app/database.sqlite" >> /etc/environment
+              # Instalar Node.js 16 LTS (gratuito)
+              curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
+              yum install -y nodejs
               
+              # Verificar versões instaladas
+              echo "Node.js version: $(node --version)"
+              echo "NPM version: $(npm --version)"
+              
+              # Configurar diretórios
               mkdir -p /home/ec2-user/app
-              cd /home/ec2-user/app
+              cd /home/ec2-user/
               
-              cat > server.js << 'EOFJS'
-const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const cors = require('cors');
-
-const app = express();
-const port = process.env.PORT || 3001;
-
-app.use(cors());
-app.use(express.json());
-
-const dbPath = path.join(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Erro SQLite:', err);
-  } else {
-    console.log('SQLite conectado:', dbPath);
-  }
-});
-
-db.serialize(() => {
-  db.run("PRAGMA journal_mode = WAL");
-  db.run("PRAGMA synchronous = NORMAL");
-  db.run("PRAGMA cache_size = 1000");
-  
-  db.run(\`CREATE TABLE IF NOT EXISTS items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'active',
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-  )\`);
-  
-  db.run(\`INSERT OR IGNORE INTO items (id, name, description, status) VALUES 
-    (1, 'Exemplo AWS Free Tier', 'Item criado automaticamente no deploy gratuito', 'active'),
-    (2, 'SQLite na EC2', 'Banco de dados local sem custos adicionais', 'active'),
-    (3, 'CRUD Completo', 'Todas as operações funcionando na nuvem', 'active')\`);
-});
-
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
-    timestamp: new Date(),
-    uptime: process.uptime(),
-    database: 'SQLite Local'
-  });
-});
-
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'CRUD App funcionando na AWS Free Tier!', 
-    timestamp: new Date(),
-    database: 'SQLite',
-    instance: 't2.micro',
-    cost: 'Gratuito (Free Tier)'
-  });
-});
-
-app.get('/api/items', (req, res) => {
-  db.all("SELECT * FROM items ORDER BY createdAt DESC", [], (err, rows) => {
-    if (err) {
-      console.error('Erro ao buscar itens:', err);
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
-});
-
-app.get('/api/items/:id', (req, res) => {
-  const { id } = req.params;
-  db.get("SELECT * FROM items WHERE id = ?", [id], (err, row) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (!row) {
-      res.status(404).json({ error: 'Item não encontrado' });
-      return;
-    }
-    res.json(row);
-  });
-});
-
-app.post('/api/items', (req, res) => {
-  const { name, description, status } = req.body;
-  if (!name) {
-    return res.status(400).json({ error: 'Nome é obrigatório' });
-  }
-  
-  db.run("INSERT INTO items (name, description, status) VALUES (?, ?, ?)", 
-    [name, description, status || 'active'], function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.status(201).json({ 
-      id: this.lastID, 
-      name, 
-      description, 
-      status: status || 'active',
-      message: 'Item criado com sucesso'
-    });
-  });
-});
-
-app.put('/api/items/:id', (req, res) => {
-  const { name, description, status } = req.body;
-  const { id } = req.params;
-  
-  if (!name) {
-    return res.status(400).json({ error: 'Nome é obrigatório' });
-  }
-  
-  db.run("UPDATE items SET name = ?, description = ?, status = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?",
-    [name, description, status, id], function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: 'Item não encontrado' });
-    }
-    res.json({ id: parseInt(id), name, description, status, message: 'Item atualizado' });
-  });
-});
-
-app.delete('/api/items/:id', (req, res) => {
-  const { id } = req.params;
-  db.run("DELETE FROM items WHERE id = ?", id, function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: 'Item não encontrado' });
-    }
-    res.json({ message: 'Item excluído com sucesso', id: parseInt(id) });
-  });
-});
-
-process.on('SIGTERM', () => {
-  console.log('Encerrando aplicação...');
-  db.close();
-  process.exit(0);
-});
-
-app.listen(port, '0.0.0.0', () => {
-  console.log('Servidor rodando na porta ' + port);
-  console.log('Executando no AWS Free Tier');
-  console.log('Usando SQLite local (sem custos)');
-});
-EOFJS
+              # Clonar repositório (gratuito)
+              echo "Clonando repositório GitHub..."
+              git clone https://github.com/Davidamascen07/CRUD-eng-software.git
+              cd CRUD-eng-software
               
-              cat > package.json << 'EOFJSON'
-{
-  "name": "crud-app-free-tier",
-  "version": "1.0.0",
-  "description": "CRUD App otimizado para AWS Free Tier",
-  "main": "server.js",
-  "dependencies": {
-    "express": "^4.18.2",
-    "sqlite3": "^5.1.6",
-    "cors": "^2.8.5"
-  }
-}
-EOFJSON
+              # ==========================================
+              # BACKEND - 100% GRATUITO
+              # ==========================================
+              echo "Configurando backend com SQLite (gratuito)..."
+              cd backend
               
-              npm install --production
-              chown -R ec2-user:ec2-user /home/ec2-user/app
+              # Instalar dependências
+              npm install --production --no-optional
               
-              cat > /etc/systemd/system/crud-app.service << 'EOFSVC'
+              # Configurar ambiente para produção gratuita
+              cat > .env << 'EOFENV'
+NODE_ENV=production
+PORT=3001
+USE_SQLITE=true
+SQLITE_PATH=/home/ec2-user/CRUD-eng-software/backend/database.sqlite
+EOFENV
+              
+              # Inicializar banco SQLite com dados exemplo
+              node -e "
+              const sqlite3 = require('sqlite3').verbose();
+              const db = new sqlite3.Database('./database.sqlite');
+              db.serialize(() => {
+                db.run('CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT, status TEXT DEFAULT \"active\", createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP)');
+                db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (1, \"Deploy AWS Free Tier\", \"Aplicação rodando gratuitamente na AWS\", \"active\")');
+                db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (2, \"Node.js 16 LTS\", \"Versão estável e gratuita\", \"active\")');
+                db.run('INSERT OR IGNORE INTO items (id, name, description, status) VALUES (3, \"SQLite Banco\", \"Banco de dados local sem custos\", \"active\")');
+              });
+              db.close();
+              console.log('Banco SQLite inicializado com sucesso');
+              "
+              
+              # Serviço systemd para backend
+              cat > /etc/systemd/system/crud-backend.service << 'EOFSVC'
 [Unit]
-Description=CRUD App - AWS Free Tier
+Description=CRUD Backend API - Free Tier
 After=network.target
 
 [Service]
 Type=simple
 User=ec2-user
-WorkingDirectory=/home/ec2-user/app
+WorkingDirectory=/home/ec2-user/CRUD-eng-software/backend
 ExecStart=/usr/bin/node server.js
 Restart=always
 RestartSec=10
 Environment=NODE_ENV=production
 Environment=USE_SQLITE=true
 Environment=PORT=3001
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=crud-backend
 
 [Install]
 WantedBy=multi-user.target
 EOFSVC
               
-              systemctl daemon-reload
-              systemctl enable crud-app
-              systemctl start crud-app
+              # ==========================================
+              # FRONTEND - 100% GRATUITO
+              # ==========================================
+              echo "Configurando frontend React (gratuito)..."
+              cd ../frontend
               
-              echo "Instalação concluída com sucesso!"
+              # Instalar dependências de produção
+              npm ci --production --no-optional
+              
+              # Build otimizado para produção
+              export GENERATE_SOURCEMAP=false
+              export INLINE_RUNTIME_CHUNK=false
+              npm run build
+              
+              # ==========================================
+              # NGINX - 100% GRATUITO
+              # ==========================================
+              echo "Configurando Nginx (gratuito)..."
+              
+              # Configuração otimizada para Free Tier
+              cat > /etc/nginx/nginx.conf << 'EOFNGINX'
+user nginx;
+worker_processes 1;  # Mínimo para t2.micro
+error_log /var/log/nginx/error.log warn;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 512;  # Reduzido para t2.micro
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    
+    # Logs mínimos para economizar I/O
+    access_log off;
+    error_log /var/log/nginx/error.log warn;
+    
+    # Otimizações para Free Tier
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 30;
+    client_max_body_size 1m;
+    
+    # Compressão para economizar bandwidth
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
+    
+    # Frontend React
+    server {
+        listen 80;
+        server_name _;
+        root /home/ec2-user/CRUD-eng-software/frontend/build;
+        index index.html;
+        
+        # Cache para arquivos estáticos
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+        
+        # Servir React SPA
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+        
+        # Proxy para API
+        location /api/ {
+            proxy_pass http://127.0.0.1:3001;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 30s;
+            proxy_read_timeout 30s;
+        }
+        
+        # Health check
+        location /health {
+            proxy_pass http://127.0.0.1:3001/health;
+        }
+    }
+}
+EOFNGINX
+              
+              # Ajustar permissões
+              chown -R ec2-user:ec2-user /home/ec2-user/CRUD-eng-software
+              
+              # ==========================================
+              # INICIALIZAÇÃO - SEM CUSTOS EXTRAS
+              # ==========================================
+              echo "Iniciando serviços gratuitos..."
+              
+              # Iniciar backend
+              systemctl daemon-reload
+              systemctl enable crud-backend
+              systemctl start crud-backend
+              
+              # Iniciar Nginx
+              systemctl enable nginx
+              systemctl start nginx
+              
+              # Aguardar inicialização
+              sleep 15
+              
+              # ==========================================
+              # VERIFICAÇÕES FINAIS
+              # ==========================================
+              echo "Verificando deployment gratuito..."
+              
+              # Status dos serviços
+              echo "=== Status Backend ==="
+              systemctl status crud-backend --no-pager -l
+              
+              echo "=== Status Nginx ==="
+              systemctl status nginx --no-pager -l
+              
+              # Testes de conectividade
+              echo "=== Teste Backend ==="
+              curl -s http://localhost:3001/health | head -5
+              
+              echo "=== Teste Frontend ==="
+              curl -s http://localhost/ | head -5
+              
+              # Informações finais
+              PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+              echo "=========================================="
+              echo "🎉 DEPLOYMENT GRATUITO CONCLUÍDO!"
+              echo "=========================================="
+              echo "💻 Frontend: http://$PUBLIC_IP/"
+              echo "🔌 Backend:  http://$PUBLIC_IP:3001/"
+              echo "❤️ Health:   http://$PUBLIC_IP/health"
+              echo "📊 Custos:   US$ 0.00 (Free Tier)"
+              echo "🗄️ Banco:    SQLite Local"
+              echo "⚡ Node.js:  $(node --version)"
+              echo "=========================================="
+              
+              # Log de sucesso
+              echo "$(date): Deployment FREE TIER concluído com sucesso" >> /var/log/deployment.log
               EOF
   
   tags = {
-    Name = "${var.project_name}-free-tier-server"
+    Name        = "${var.project_name}-free-tier"
     Environment = "Free-Tier"
+    Cost        = "Zero"
+    NodeVersion = "16.x"
+    Database    = "SQLite"
   }
 }
 
@@ -257,13 +268,13 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# Elastic IP gratuito (1 por instância no Free Tier)
+# Elastic IP GRATUITO (1 por conta no Free Tier)
 resource "aws_eip" "app_eip" {
   instance = aws_instance.app_server.id
   domain   = "vpc"
   
   tags = {
     Name = "${var.project_name}-free-eip"
-    Environment = "Free-Tier"
+    Cost = "Free"
   }
 }

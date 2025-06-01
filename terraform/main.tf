@@ -42,9 +42,19 @@ output "ec2_public_ip" {
   description = "O endereço IP público da instância EC2"
 }
 
-output "application_url" {
+output "frontend_url" {
+  value = "http://${module.ec2.public_ip}"
+  description = "URL para acessar o frontend React"
+}
+
+output "backend_url" {
   value = "http://${module.ec2.public_ip}:3001"
-  description = "URL para acessar a aplicação CRUD com SQLite"
+  description = "URL para acessar a API backend"
+}
+
+output "health_check_url" {
+  value = "http://${module.ec2.public_ip}/health"
+  description = "URL para verificar saúde da aplicação"
 }
 
 output "ssh_command" {
@@ -52,30 +62,40 @@ output "ssh_command" {
   description = "Comando para conectar via SSH"
 }
 
-output "database_info" {
-  value = "SQLite local na instância - arquivo: /home/ec2-user/app/database.sqlite"
-  description = "Informações sobre o banco de dados"
+output "deployment_info" {
+  value = {
+    frontend = "React servido pelo Nginx na porta 80"
+    backend = "Node.js com Express na porta 3001"
+    database = "SQLite local"
+    proxy = "Nginx fazendo proxy /api/* para backend"
+    repository = "https://github.com/Davidamascen07/CRUD-eng-software.git"
+  }
+  description = "Informações do deployment"
 }
 
 output "free_tier_info" {
   value = {
-    instance_type = "t2.micro (Free Tier)"
-    database = "SQLite Local (sem custos)"
-    storage = "8GB EBS (Free Tier)"
-    network = "VPC gratuita"
-    ip = "Elastic IP gratuito"
-    monthly_cost = "US$ 0.00"
+    instance_type    = "t2.micro (750h/mês GRÁTIS)"
+    database        = "SQLite Local (US$ 0.00)"
+    storage         = "8GB EBS gp2 (30GB GRÁTIS)"
+    network         = "VPC + Subnet (GRÁTIS)"
+    ip              = "1 Elastic IP (GRÁTIS)"
+    bandwidth       = "1GB/mês (GRÁTIS)"
+    monthly_cost    = "US$ 0.00"
+    node_version    = "16.x LTS"
+    estimated_cost  = "💚 TOTALMENTE GRATUITO"
   }
-  description = "Informações sobre o uso do Free Tier"
+  description = "Confirmação de uso 100% Free Tier"
 }
 
-output "usage_limits" {
+output "cost_monitoring" {
   value = {
-    ec2_hours = "750 horas/mês grátis"
-    ebs_storage = "30 GB/mês grátis"
-    data_transfer = "1 GB/mês grátis"
-    warning = "Monitore o uso para não exceder os limites"
+    warning = "⚠️ MONITORE SEU USO:"
+    ec2_limit = "750 horas/mês t2.micro"
+    ebs_limit = "30 GB armazenamento"
+    transfer_limit = "1 GB transferência/mês"
+    tip = "Configure billing alerts na AWS"
   }
-  description = "Limites do AWS Free Tier"
+  description = "Limites do Free Tier para monitorar"
 }
 

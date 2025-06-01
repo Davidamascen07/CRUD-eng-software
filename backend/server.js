@@ -9,6 +9,21 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Servir arquivos estáticos do React em produção
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../frontend/build');
+  app.use(express.static(frontendPath));
+  
+  // Catch all handler para React Router
+  app.get('*', (req, res, next) => {
+    // Pular se for rota da API
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+
 // Configuração do banco de dados - SQLite como padrão
 const USE_SQLITE = process.env.USE_SQLITE !== 'false'; // SQLite por padrão
 let db;
