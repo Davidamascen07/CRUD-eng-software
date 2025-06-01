@@ -39,7 +39,7 @@ function App() {
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [fetchItems]); // Incluir fetchItems como dependência
 
   // Filtrar itens quando os critérios mudarem
   useEffect(() => {

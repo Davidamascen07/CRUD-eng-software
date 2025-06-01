@@ -123,7 +123,7 @@ echo "Configurando Nginx (gratuito)..."
               
 # Configuracao Nginx usando tee
 tee /etc/nginx/nginx.conf > /dev/null << 'EOFNGINX'
-user nginx;
+user ec2-user;
 worker_processes 1;
 error_log /var/log/nginx/error.log warn;
 pid /run/nginx.pid;
@@ -176,9 +176,41 @@ http {
 }
 EOFNGINX
               
-# Ajustar permissoes
+# ==========================================
+# CORREÇÕES DE PERMISSÕES - AUTOMATIZADAS
+# ==========================================
+echo "Corrigindo permissões e configurações..."
+
+# Dar permissões corretas para todos os diretórios
+chmod 755 /home/ec2-user
+chmod -R 755 /home/ec2-user/CRUD-eng-software
+
+# Garantir que o build foi criado com sucesso
+if [ ! -f "/home/ec2-user/CRUD-eng-software/frontend/build/index.html" ]; then
+    echo "ERRO: Build do frontend não foi criado. Tentando novamente..."
+    cd /home/ec2-user/CRUD-eng-software/frontend
+    npm run build --verbose
+fi
+
+# Verificar se o build existe após tentativa
+if [ ! -f "/home/ec2-user/CRUD-eng-software/frontend/build/index.html" ]; then
+    echo "ERRO CRÍTICO: Não foi possível criar o build do frontend"
+    exit 1
+fi
+
+# Corrigir propriedade dos arquivos
 chown -R ec2-user:ec2-user /home/ec2-user/CRUD-eng-software
-              
+
+# Ajustar permissões específicas para Nginx
+chmod -R 755 /home/ec2-user/CRUD-eng-software/frontend/build
+
+# Verificar configuração do Nginx antes de iniciar
+nginx -t
+if [ $? -ne 0 ]; then
+    echo "ERRO: Configuração do Nginx inválida"
+    exit 1
+fi
+
 # ==========================================
 # INICIALIZACAO - SEM CUSTOS EXTRAS
 # ==========================================

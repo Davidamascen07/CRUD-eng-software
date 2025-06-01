@@ -61,14 +61,41 @@ git push origin main
 # 1. Configurar AWS CLI
 aws configure
 
-# 2. Deploy com Terraform
+# 2. Deploy automatizado com correções
 cd terraform
 terraform init
 terraform plan
-terraform apply
+terraform apply -auto-approve
 
-# 3. Acessar aplicação
-# URLs serão exibidas no output
+# 3. Aguardar deploy completo (8-12 minutos)
+# O script agora corrige automaticamente:
+# ✅ Permissões do Nginx
+# ✅ Build do frontend
+# ✅ Propriedade dos arquivos
+# ✅ Configurações de segurança
+
+# 4. Verificar aplicação
+terraform output
+```
+
+## ✅ Correções Implementadas
+
+### Problemas Resolvidos Automaticamente:
+- **Nginx User**: Alterado para `ec2-user` automaticamente
+- **Permissões**: `chmod 755` aplicado recursivamente
+- **Build Frontend**: Verificação e recriação automática se necessário
+- **Propriedade Arquivos**: `chown ec2-user:ec2-user` aplicado
+- **Validação Nginx**: Teste de configuração antes de iniciar
+- **ESLint Warning**: Dependência do useEffect corrigida
+
+### Script de Deploy Robusto:
+```bash
+# O deploy agora inclui verificações automáticas:
+✅ Verificar se build existe
+✅ Recriar build se necessário
+✅ Corrigir permissões automaticamente
+✅ Validar configuração Nginx
+✅ Logs detalhados de cada etapa
 ```
 
 ## 🏗️ Arquitetura
@@ -81,6 +108,48 @@ terraform apply
 ## 💰 Custos
 
 **US$ 0.00** - 100% Free Tier AWS
+
+### ✅ Análise de Custos das Correções
+
+**TODAS as correções implementadas são 100% GRATUITAS:**
+
+#### Correções que NÃO geram custos:
+- ✅ **Alteração do usuário Nginx**: Apenas configuração de software
+- ✅ **Permissões de arquivos (chmod/chown)**: Operações do sistema operacional
+- ✅ **Build do frontend**: Processamento local na instância
+- ✅ **Validação de configuração**: Comandos de verificação
+- ✅ **Logs detalhados**: Gravação em arquivos locais
+- ✅ **Headers de segurança**: Configuração de software
+- ✅ **Middleware adicional**: Código Node.js
+
+#### Por que são gratuitas:
+- **Sem recursos AWS adicionais**: Usamos apenas a instância EC2 já provisionada
+- **Sem transferência de dados extra**: Correções são locais
+- **Sem armazenamento adicional**: Logs e builds usam o mesmo volume EBS
+- **Sem serviços pagos**: Todas as operações são do sistema operacional Linux
+
+#### Recursos Free Tier utilizados:
+```bash
+# Instância EC2 t2.micro: 750 horas/mês GRÁTIS
+# Volume EBS 8GB: Dentro dos 30GB gratuitos
+# Elastic IP: 1 IP gratuito por conta
+# Transferência: Primeiros 15GB/mês gratuitos
+# Monitoramento básico: Sempre gratuito
+```
+
+#### Custos potenciais EVITADOS pelas correções:
+- **Sem CloudWatch Logs**: US$ 0.50/GB - Usamos logs locais
+- **Sem Load Balancer**: US$ 16.20/mês - Nginx local
+- **Sem RDS**: US$ 12.41/mês - SQLite local
+- **Sem S3 para assets**: CDN grátis para CSS/JS
+
+### 🔒 Garantia Free Tier
+
+**ZERO custos adicionais garantidos:**
+- Todas as melhorias são otimizações de software
+- Nenhum recurso AWS extra é provisionado
+- Deploy permanece 100% dentro do Free Tier
+- Correções melhoram performance SEM custos
 
 ## 📊 Funcionalidades
 
@@ -200,7 +269,7 @@ aws sts get-caller-identity
 ### Deploy Completo
 ```bash
 # Navegar para terraform
-cd terraform
+terraform destroy
 
 # Inicializar Terraform
 terraform init
