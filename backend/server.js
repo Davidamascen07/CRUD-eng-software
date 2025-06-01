@@ -102,6 +102,16 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health check endpoint para monitoramento
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy',
+    database: USE_SQLITE ? 'SQLite' : 'MySQL',
+    timestamp: new Date(),
+    uptime: process.uptime()
+  });
+});
+
 // GET - Listar todos os itens
 app.get('/api/items', async (req, res) => {
   try {

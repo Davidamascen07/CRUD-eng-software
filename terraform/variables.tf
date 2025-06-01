@@ -113,3 +113,18 @@ variable "delete_on_termination" {
   description = "Deletar volumes EBS ao terminar a instância"
   default     = true  # Evitar custos de armazenamento órfão
 }
+
+variable "health_check_path" {
+  description = "Caminho para health check da aplicação"
+  default     = "/health"
+}
+
+variable "auto_scaling" {
+  description = "Habilitar auto scaling (pode gerar custos)"
+  default     = false
+}
+
+variable "backup_enabled" {
+  description = "Habilitar backup automático do SQLite"
+  default     = true
+}

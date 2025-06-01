@@ -1,302 +1,364 @@
-# CRUD App - Aplicação de Engenharia de Software
+# CRUD App - Engenharia de Software
 
-Uma aplicação CRUD (Create, Read, Update, Delete) moderna e completa, desenvolvida como projeto acadêmico de Engenharia de Software. A aplicação demonstra boas práticas de desenvolvimento, arquitetura modular e deploy em nuvem.
+## 📋 Especificações Atendidas
 
-## 🚀 Características Principais
+✅ **CRUD Completo**: Cadastro, consulta, edição e exclusão  
+✅ **Interface Gráfica**: React + Tailwind CSS responsivo  
+✅ **Terraform**: Deploy automatizado AWS Free Tier  
+✅ **DevOps Ready**: Modularizado e escalável  
+✅ **Versionamento Git**: Código fonte versionado  
+✅ **Documentação**: Guia completo de execução  
 
-- **Frontend moderno** em React com interface responsiva
-- **Backend robusto** em Node.js/Express
-- **Banco de dados flexível** (SQLite/MySQL)
-- **Deploy automatizado** na AWS com Terraform
-- **Interface intuitiva** com Tailwind CSS
-- **Operações CRUD completas** com validação
-- **Paginação e filtros** para melhor UX
-
-## 🏗️ Arquitetura do Projeto
+## 📦 Estrutura do Projeto
 
 ```
 CRUD-eng-software/
-├── frontend/           # Aplicação React
-│   ├── src/
-│   │   ├── components/ # Componentes reutilizáveis
-│   │   ├── App.js      # Componente principal
-│   │   └── index.js    # Ponto de entrada
-│   └── public/         # Arquivos estáticos
-├── backend/            # API Node.js/Express
-│   ├── server.js       # Servidor principal
-│   └── package.json    # Dependências do backend
-├── terraform/          # Infraestrutura como código
-│   ├── modules/        # Módulos Terraform reutilizáveis
-│   │   ├── vpc/        # Configuração de rede
-│   │   ├── ec2/        # Instâncias EC2
-│   │   ├── security_groups/ # Grupos de segurança
-│   │   └── rds/        # Banco de dados RDS
-│   ├── main.tf         # Configuração principal
-│   └── variables.tf    # Variáveis do Terraform
-└── README.md           # Este arquivo
+├── backend/           # API Node.js + Express + SQLite
+├── frontend/          # Interface React + Tailwind
+├── terraform/         # Infraestrutura AWS modularizada
+├── docs/             # Documentação adicional
+├── .gitignore        # Arquivos ignorados pelo Git
+├── package.json      # Dependências do projeto
+└── README.md         # Este arquivo
 ```
 
-## 🛠️ Tecnologias Utilizadas
+## 🔄 Versionamento Git
 
-### Frontend
-- **React** 18+ - Framework de interface
-- **Tailwind CSS** - Framework CSS utilitário
-- **Axios** - Cliente HTTP para API
-- **Font Awesome** - Ícones
+### Configuração Inicial
+```bash
+# Clonar repositório
+git clone https://github.com/Davidamascen07/CRUD-eng-software.git
+cd CRUD-eng-software
+
+# Verificar status
+git status
+git log --oneline -10
+```
+
+### Workflow de Desenvolvimento
+```bash
+# Criar nova feature
+git checkout -b feature/nova-funcionalidade
+git add .
+git commit -m "feat: adicionar nova funcionalidade"
+git push origin feature/nova-funcionalidade
+
+# Merge para main
+git checkout main
+git merge feature/nova-funcionalidade
+git push origin main
+```
+
+### Branches Organizadas
+- `main`: Código de produção estável
+- `develop`: Desenvolvimento ativo
+- `feature/*`: Novas funcionalidades
+- `hotfix/*`: Correções urgentes
+
+## 🚀 Deploy Rápido
+
+```bash
+# 1. Configurar AWS CLI
+aws configure
+
+# 2. Deploy com Terraform
+cd terraform
+terraform init
+terraform plan
+terraform apply
+
+# 3. Acessar aplicação
+# URLs serão exibidas no output
+```
+
+## 🏗️ Arquitetura
+
+- **Frontend**: React + Tailwind CSS
+- **Backend**: Node.js + Express + SQLite
+- **Infraestrutura**: AWS Free Tier
+- **Deploy**: Terraform + user-data automation
+
+## 💰 Custos
+
+**US$ 0.00** - 100% Free Tier AWS
+
+## 📊 Funcionalidades
+
+- [x] Create (Criar itens)
+- [x] Read (Listar/Buscar itens)  
+- [x] Update (Editar itens)
+- [x] Delete (Excluir itens)
+- [x] Filtros e busca
+- [x] Paginação
+- [x] Interface responsiva
+
+## 🛠️ Execução do Sistema
+
+### Pré-requisitos
+```bash
+# Verificar versões necessárias
+node --version    # >= 16.0.0
+npm --version     # >= 8.0.0
+git --version     # >= 2.0.0
+```
+
+### 1. Setup Inicial
+```bash
+# Clonar e entrar no projeto
+git clone https://github.com/Davidamascen07/CRUD-eng-software.git
+cd CRUD-eng-software
+
+# Instalar dependências raiz (se houver)
+npm install
+```
+
+### 2. Backend (Desenvolvimento)
+```bash
+# Navegar para backend
+cd backend
+
+# Instalar dependências
+npm install
+
+# Configurar ambiente (opcional)
+cp .env.example .env
+# Editar .env conforme necessário
+
+# Iniciar servidor de desenvolvimento
+npm run dev
+# ou
+npm start
+
+# Servidor rodará em: http://localhost:3001
+```
+
+### 3. Frontend (Desenvolvimento)
+```bash
+# Em novo terminal, navegar para frontend
+cd frontend
+
+# Instalar dependências
+npm install
+
+# Iniciar servidor de desenvolvimento
+npm start
+
+# Aplicação abrirá em: http://localhost:3000
+```
+
+### 4. Verificação de Funcionamento
+```bash
+# Testar backend
+curl http://localhost:3001/health
+
+# Testar frontend
+# Abrir http://localhost:3000 no navegador
+```
+
+## 🐳 Execução com Docker (Opcional)
 
 ### Backend
-- **Node.js** - Runtime JavaScript
-- **Express** - Framework web
-- **SQLite3** - Banco de dados local (padrão)
-- **MySQL** - Banco de dados alternativo
-- **CORS** - Middleware para requisições cross-origin
-
-### Infraestrutura
-- **AWS EC2** - Hospedagem da aplicação
-- **AWS VPC** - Rede virtual privada
-- **Terraform** - Infraestrutura como código
-- **Amazon Linux 2** - Sistema operacional
-
-## 📋 Pré-requisitos
-
-### Para desenvolvimento local:
-- Node.js 16+ 
-- npm ou yarn
-- Git
-
-### Para deploy na AWS:
-- Conta AWS ativa
-- Terraform instalado
-- AWS CLI configurado
-- Key pair criado na AWS
-
-## 🚀 Instalação e Execução Local
-
-### 1. Clone o repositório
 ```bash
-git clone https://github.com/seu-usuario/CRUD-eng-software.git
-cd CRUD-eng-software
-```
-
-### 2. Configure o Backend
-```bash
+# Construir imagem
 cd backend
-npm install
-npm start
+docker build -t crud-backend .
+
+# Executar container
+docker run -p 3001:3001 crud-backend
 ```
-O servidor estará rodando em `http://localhost:3001`
 
-### 3. Configure o Frontend
+### Frontend
 ```bash
+# Construir imagem
+cd frontend
+docker build -t crud-frontend .
 
-
+# Executar container
+docker run -p 3000:3000 crud-frontend
 ```
-A aplicação estará disponível em `http://localhost:3000`
 
-## ☁️ Deploy na AWS
+## ☁️ Deploy AWS com Terraform
 
-### 1. Configurar Terraform
+### Pré-requisitos AWS
 ```bash
+# Instalar AWS CLI
+# Windows: Download do site oficial
+# macOS: brew install awscli
+# Linux: apt-get install awscli
+
+# Configurar credenciais
+aws configure
+# AWS Access Key ID: [sua-key]
+# AWS Secret Access Key: [sua-secret]
+# Default region: us-east-1
+# Default output format: json
+
+# Verificar configuração
+aws sts get-caller-identity
+```
+
+### Deploy Completo
+```bash
+# Navegar para terraform
 cd terraform
 
 # Inicializar Terraform
 terraform init
 
-# Verificar o plano de execução
+# Verificar plano de execução
 terraform plan
 
-# Aplicar as configurações
+# Aplicar infraestrutura
 terraform apply
+# Digite 'yes' para confirmar
+
+# Aguardar conclusão (5-10 minutos)
+# URLs serão exibidas no final
 ```
 
-### 2. Configurar Key Pair
-Antes do deploy, crie um key pair na AWS:
+### Verificação do Deploy
 ```bash
-# No console AWS EC2, criar key pair com nome "crud-app-key"
-# Ou usar AWS CLI:
-aws ec2 create-key-pair --key-name crud-app-key --query 'KeyMaterial' --output text > crud-app-key.pem
-chmod 400 crud-app-key.pem
+# Obter outputs importantes
+terraform output
+
+# Testar aplicação
+curl http://[IP-PUBLICO]/health
 ```
 
-### 3. Acessar a aplicação
-Após o deploy, o Terraform fornecerá:
-- **IP público da instância**
-- **URL da aplicação** (http://IP:3001)
-- **Comando SSH** para acesso
-
-## 🎯 Funcionalidades
-
-### Interface do Usuário
-- ✅ **Listagem de itens** com paginação
-- ✅ **Busca e filtros** por nome e status
-- ✅ **Adição de novos itens** via modal
-- ✅ **Edição de itens** existentes
-- ✅ **Exclusão com confirmação**
-- ✅ **Notificações toast** para feedback
-- ✅ **Design responsivo** para mobile
-
-### API Backend
-- ✅ `GET /api/items` - Listar todos os itens
-- ✅ `GET /api/items/:id` - Buscar item específico
-- ✅ `POST /api/items` - Criar novo item
-- ✅ `PUT /api/items/:id` - Atualizar item
-- ✅ `DELETE /api/items/:id` - Excluir item
-
-### Validações
-- ✅ **Nome obrigatório** para todos os itens
-- ✅ **Status válido** (ativo/inativo)
-- ✅ **Tratamento de erros** robusto
-- ✅ **Sanitização de dados** de entrada
-
-## ⚙️ Configuração
-
-### Variáveis de Ambiente (Backend)
-```env
-PORT=3001                    # Porta do servidor
-USE_SQLITE=true             # Usar SQLite (padrão)
-SQLITE_PATH=./database.sqlite # Caminho do banco SQLite
-DB_HOST=localhost           # Host MySQL (se USE_SQLITE=false)
-DB_USER=root               # Usuário MySQL
-DB_PASSWORD=senha          # Senha MySQL
-DB_NAME=crud_app          # Nome do banco MySQL
-```
-
-### Configuração do Terraform
-```hcl
-# Principais variáveis configuráveis
-aws_region = "us-east-2"        # Região AWS
-instance_type = "t2.micro"      # Tipo da instância (Free Tier)
-key_name = "crud-app-key"       # Nome do key pair
-use_sqlite = true               # Usar SQLite na instância
-```
-
-## 🔧 Comandos Úteis
-
-### Desenvolvimento
+### Limpeza de Recursos
 ```bash
-# Backend - modo desenvolvimento
-cd backend && npm run dev
-
-# Frontend - modo desenvolvimento  
-cd frontend && npm start
-
-# Instalar dependências em ambos
-npm run install-all
-```
-
-### Terraform
-```bash
-# Verificar recursos criados
-terraform show
-
 # Destruir infraestrutura
 terraform destroy
-
-# Verificar estado atual
-terraform state list
+# Digite 'yes' para confirmar
 ```
 
-### AWS EC2
+## 🔧 Scripts Úteis
+
+### Backend
 ```bash
-# Conectar via SSH
-ssh -i ~/.ssh/crud-app-key.pem ec2-user@SEU_IP_PUBLICO
+cd backend
 
-# Verificar logs da aplicação
-sudo journalctl -u crud-app -f
+# Executar testes
+npm test
 
-# Reiniciar serviço
-sudo systemctl restart crud-app
+# Verificar sintaxe
+npm run lint
+
+# Inicializar banco local
+npm run db:init
+
+# Reset do banco
+npm run db:reset
 ```
 
-## 📊 Estrutura do Banco de Dados
-
-### Tabela: items
-```sql
-CREATE TABLE items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'active',
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-## 🧪 Testes
-
-### Testar API manualmente
+### Frontend
 ```bash
-# Listar itens
-curl http://localhost:3001/api/items
+cd frontend
 
-# Criar item
-curl -X POST http://localhost:3001/api/items \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Teste","description":"Item de teste"}'
+# Build para produção
+npm run build
 
-# Atualizar item
-curl -X PUT http://localhost:3001/api/items/1 \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Teste Atualizado","status":"inactive"}'
+# Testar build local
+npm run serve
 
-# Excluir item
-curl -X DELETE http://localhost:3001/api/items/1
+# Executar testes
+npm test
+
+# Análise de bundle
+npm run analyze
 ```
 
-## 🚨 Troubleshooting
+## 📈 Monitoramento
+
+### Logs do Sistema
+```bash
+# Logs do backend (desenvolvimento)
+tail -f backend/logs/app.log
+
+# Logs do sistema (produção AWS)
+ssh -i crud-app-key.pem ec2-user@[IP] tail -f /var/log/user-data.log
+
+# Status dos serviços (produção)
+ssh -i crud-app-key.pem ec2-user@[IP] systemctl status crud-backend
+```
+
+### Health Checks
+- **Local**: http://localhost:3001/health
+- **Produção**: http://[IP-PUBLICO]/health
+
+### Métricas Importantes
+- Tempo de resposta da API
+- Status do banco SQLite
+- Uso de CPU/Memória da instância
+- Logs de erro da aplicação
+
+## 🐛 Solução de Problemas
 
 ### Problemas Comuns
 
-#### Frontend não conecta com Backend
-- Verificar se o backend está rodando na porta 3001
-- Confirmar configuração de CORS no servidor
-- Verificar URL da API no `App.js`
+**Backend não inicia**
+```bash
+# Verificar porta em uso
+netstat -an | grep 3001
+# Matar processo se necessário
+kill -9 [PID]
+```
 
-#### Erro ao fazer deploy na AWS
-- Verificar credenciais AWS configuradas
-- Confirmar que o key pair existe na região correta
-- Verificar limites da conta AWS (Free Tier)
+**Frontend não conecta ao backend**
+```bash
+# Verificar URL da API em frontend/src/App.js
+# Deve apontar para localhost:3001 em dev
+```
 
-#### Instância EC2 não responde
-- Verificar Security Groups (portas 22, 80, 3001)
-- Confirmar que a instância está rodando
-- Verificar logs: `sudo journalctl -u crud-app`
+**Deploy AWS falha**
+```bash
+# Verificar credenciais AWS
+aws sts get-caller-identity
+
+# Verificar key pair existe
+aws ec2 describe-key-pairs --key-names crud-app-key
+
+# Criar key pair se necessário
+aws ec2 create-key-pair --key-name crud-app-key --output text --query 'KeyMaterial' > crud-app-key.pem
+chmod 400 crud-app-key.pem
+```
+
+## 📚 Documentação Adicional
+
+- [API Documentation](docs/api.md)
+- [Frontend Components](docs/components.md)
+- [Terraform Modules](docs/terraform.md)
+- [Deployment Guide](docs/deployment.md)
 
 ## 🤝 Contribuição
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+```bash
+# Fork do projeto
+# Criar branch para feature
+git checkout -b feature/minha-feature
 
-## 📝 Licença
+# Fazer alterações e commit
+git commit -m "feat: minha nova feature"
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+# Push e criar Pull Request
+git push origin feature/minha-feature
+```
 
-## 👥 Autores
+## 📄 Licença
 
-- **Seu Nome** - [GitHub](https://github.com/seu-usuario)
+Este projeto está sob licença MIT. Veja [LICENSE](LICENSE) para detalhes.
 
-## 🙏 Agradecimentos
+## 👥 Equipe
 
-- Professores de Engenharia de Software
-- Comunidade React e Node.js
-- Documentação oficial do AWS e Terraform
-- Tailwind CSS pela interface moderna
+- **Desenvolvedor**: David Damasceno
+- **Repositório**: https://github.com/Davidamascen07/CRUD-eng-software
 
----
+## 📞 Suporte
 
-## 📈 Próximas Melhorias
-
-- [ ] Implementar autenticação JWT
-- [ ] Adicionar testes automatizados
-- [ ] Configurar CI/CD com GitHub Actions
-- [ ] Implementar cache Redis
-- [ ] Adicionar monitoramento com CloudWatch
-- [ ] Configurar HTTPS com Certificate Manager
-- [ ] Implementar backup automático do banco
+- **Issues**: https://github.com/Davidamascen07/CRUD-eng-software/issues
+- **Documentação**: Esta README e pasta `/docs`
+- **Email**: [seu-email@exemplo.com]
 
 ---
 
-**📞 Suporte**: Para dúvidas ou problemas, abra uma [issue](https://github.com/seu-usuario/CRUD-eng-software/issues) no GitHub.
+**🎯 Projeto 100% funcional e documentado para Engenharia de Software**
