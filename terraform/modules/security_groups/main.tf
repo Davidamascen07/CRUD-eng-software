@@ -1,52 +1,41 @@
-# Security Group para a aplicacão
-resource "aws_security_group" "app_sg" {
-  name        = "${var.project_name}-app-sg"
-  description = "Security group para a aplicacao CRUD" # Removido o "ç" por "c"
+# Security Group para a aplicação
+resource "aws_security_group" "app" {
   vpc_id      = var.vpc_id
-  
-  # HTTP
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-  # HTTPS
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-  # SSH
+  name        = "${var.project_name}-app-sg"
+  description = "Permitir tráfego para a aplicação CRUD"
+
+  # Regra para SSH
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "SSH de qualquer lugar"
   }
 
-  # Porta da aplicação Node.js
+  # Regra para HTTP na porta da aplicação (3001)
   ingress {
     from_port   = var.app_port
     to_port     = var.app_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Acesso HTTP à aplicação"
   }
-  
+
+  # Permitir todo tráfego de saída
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Permitir todo tráfego de saída"
   }
-  
+
   tags = {
     Name = "${var.project_name}-app-sg"
   }
 }
 
-# Security Group para SQLite (não precisa de regras de rede)
-# Como SQLite é local, removemos o db_sg para economia
+output "app_sg_id" {
+  value = aws_security_group.app.id
+}

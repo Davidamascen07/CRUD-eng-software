@@ -1,4 +1,4 @@
-# Instância EC2 para a aplicação
+# Instância EC2 otimizada para Free Tier
 resource "aws_instance" "app_server" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
@@ -6,68 +6,99 @@ resource "aws_instance" "app_server" {
   vpc_security_group_ids = [var.security_group_id]
   key_name               = var.key_name
   
+  # Configurações Free Tier
+  monitoring                  = false
+  associate_public_ip_address = true
+  
+  # Volume raiz otimizado para Free Tier
+  root_block_device {
+    volume_type           = "gp2"
+    volume_size           = 8
+    delete_on_termination = true
+    encrypted             = false
+  }
+  
+  # Script de inicialização corrigido
   user_data = <<-EOF
               #!/bin/bash
-              yum update -y
-              yum install -y git nodejs npm sqlite3
+              exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+              echo "Iniciando configuração da instância..."
               
-              # Configurar variáveis de ambiente do sistema
+              yum update -y
+              yum install -y git nodejs npm sqlite3 htop
+              
               echo "NODE_ENV=production" >> /etc/environment
               echo "PORT=3001" >> /etc/environment
               echo "USE_SQLITE=true" >> /etc/environment
               echo "SQLITE_PATH=/home/ec2-user/app/database.sqlite" >> /etc/environment
               
-              # Criar diretório da aplicação
               mkdir -p /home/ec2-user/app
               cd /home/ec2-user/app
               
-              # Clonar o repositório (ajuste a URL conforme necessário)
-              # git clone https://github.com/seu-usuario/CRUD-eng-software.git .
-              
-              # Por enquanto, criar servidor básico com SQLite
-              cat > server.js << 'EOL'
+              cat > server.js << 'EOFJS'
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const cors = require('cors');
+
 const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
-// Configurar SQLite
 const dbPath = path.join(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbPath);
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Erro SQLite:', err);
+  } else {
+    console.log('SQLite conectado:', dbPath);
+  }
+});
 
-// Criar tabela se não existir
 db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS items (
+  db.run("PRAGMA journal_mode = WAL");
+  db.run("PRAGMA synchronous = NORMAL");
+  db.run("PRAGMA cache_size = 1000");
+  
+  db.run(\`CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     description TEXT,
     status TEXT DEFAULT 'active',
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+  )\`);
   
-  // Inserir dados de exemplo
-  db.run(`INSERT OR IGNORE INTO items (id, name, description, status) VALUES 
-    (1, 'Item de Exemplo', 'Este é um item de exemplo criado automaticamente', 'active')`);
+  db.run(\`INSERT OR IGNORE INTO items (id, name, description, status) VALUES 
+    (1, 'Exemplo AWS Free Tier', 'Item criado automaticamente no deploy gratuito', 'active'),
+    (2, 'SQLite na EC2', 'Banco de dados local sem custos adicionais', 'active'),
+    (3, 'CRUD Completo', 'Todas as operações funcionando na nuvem', 'active')\`);
 });
 
-// Rotas da API
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date(),
+    uptime: process.uptime(),
+    database: 'SQLite Local'
+  });
+});
+
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'CRUD App funcionando com SQLite na AWS!', 
+    message: 'CRUD App funcionando na AWS Free Tier!', 
     timestamp: new Date(),
-    database: 'SQLite'
+    database: 'SQLite',
+    instance: 't2.micro',
+    cost: 'Gratuito (Free Tier)'
   });
 });
 
 app.get('/api/items', (req, res) => {
   db.all("SELECT * FROM items ORDER BY createdAt DESC", [], (err, rows) => {
     if (err) {
+      console.error('Erro ao buscar itens:', err);
       res.status(500).json({ error: err.message });
       return;
     }
@@ -129,7 +160,7 @@ app.put('/api/items/:id', (req, res) => {
     if (this.changes === 0) {
       return res.status(404).json({ error: 'Item não encontrado' });
     }
-    res.json({ id: parseInt(id), name, description, status, message: 'Item atualizado com sucesso' });
+    res.json({ id: parseInt(id), name, description, status, message: 'Item atualizado' });
   });
 });
 
@@ -147,16 +178,24 @@ app.delete('/api/items/:id', (req, res) => {
   });
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando na porta ${port} com SQLite`);
+process.on('SIGTERM', () => {
+  console.log('Encerrando aplicação...');
+  db.close();
+  process.exit(0);
 });
-EOL
+
+app.listen(port, '0.0.0.0', () => {
+  console.log('Servidor rodando na porta ' + port);
+  console.log('Executando no AWS Free Tier');
+  console.log('Usando SQLite local (sem custos)');
+});
+EOFJS
               
-              # Criar package.json
-              cat > package.json << 'EOL'
+              cat > package.json << 'EOFJSON'
 {
-  "name": "crud-app-aws",
+  "name": "crud-app-free-tier",
   "version": "1.0.0",
+  "description": "CRUD App otimizado para AWS Free Tier",
   "main": "server.js",
   "dependencies": {
     "express": "^4.18.2",
@@ -164,18 +203,14 @@ EOL
     "cors": "^2.8.5"
   }
 }
-EOL
+EOFJSON
               
-              # Instalar dependências
-              npm install
-              
-              # Alterar proprietário dos arquivos
+              npm install --production
               chown -R ec2-user:ec2-user /home/ec2-user/app
               
-              # Criar serviço systemd
-              cat > /etc/systemd/system/crud-app.service << 'EOL'
+              cat > /etc/systemd/system/crud-app.service << 'EOFSVC'
 [Unit]
-Description=CRUD App with SQLite
+Description=CRUD App - AWS Free Tier
 After=network.target
 
 [Service]
@@ -191,15 +226,18 @@ Environment=PORT=3001
 
 [Install]
 WantedBy=multi-user.target
-EOL
+EOFSVC
               
-              # Habilitar e iniciar o serviço
+              systemctl daemon-reload
               systemctl enable crud-app
               systemctl start crud-app
+              
+              echo "Instalação concluída com sucesso!"
               EOF
   
   tags = {
-    Name = "${var.project_name}-app-server"
+    Name = "${var.project_name}-free-tier-server"
+    Environment = "Free-Tier"
   }
 }
 
@@ -219,12 +257,13 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# Elastic IP para a instância EC2
+# Elastic IP gratuito (1 por instância no Free Tier)
 resource "aws_eip" "app_eip" {
   instance = aws_instance.app_server.id
-  domain   = "vpc"  # Alterado de 'vpc = true' para 'domain = "vpc"'
+  domain   = "vpc"
   
   tags = {
-    Name = "${var.project_name}-app-eip"
+    Name = "${var.project_name}-free-eip"
+    Environment = "Free-Tier"
   }
 }

@@ -19,6 +19,7 @@ module "security_groups" {
   
   vpc_id      = module.vpc.vpc_id
   project_name = var.project_name
+  app_port    = var.app_port  # Adicionar variável que estava faltando
 }
 
 # Instância EC2
@@ -54,5 +55,27 @@ output "ssh_command" {
 output "database_info" {
   value = "SQLite local na instância - arquivo: /home/ec2-user/app/database.sqlite"
   description = "Informações sobre o banco de dados"
+}
+
+output "free_tier_info" {
+  value = {
+    instance_type = "t2.micro (Free Tier)"
+    database = "SQLite Local (sem custos)"
+    storage = "8GB EBS (Free Tier)"
+    network = "VPC gratuita"
+    ip = "Elastic IP gratuito"
+    monthly_cost = "US$ 0.00"
+  }
+  description = "Informações sobre o uso do Free Tier"
+}
+
+output "usage_limits" {
+  value = {
+    ec2_hours = "750 horas/mês grátis"
+    ebs_storage = "30 GB/mês grátis"
+    data_transfer = "1 GB/mês grátis"
+    warning = "Monitore o uso para não exceder os limites"
+  }
+  description = "Limites do AWS Free Tier"
 }
 

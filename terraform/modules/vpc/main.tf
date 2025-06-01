@@ -36,7 +36,7 @@ resource "aws_subnet" "private" {
 resource "aws_subnet" "private2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.3.0/24"
-  availability_zone = "us-east-2b"  # Alterado para corresponder à região us-east-2
+  availability_zone = "us-east-1b"  # Corrigido para us-east-1b
   
   tags = {
     Name = "${var.project_name}-private-subnet-2"

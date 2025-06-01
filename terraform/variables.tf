@@ -1,6 +1,6 @@
 variable "aws_region" {
   description = "Região da AWS onde os recursos serão criados"
-  default     = "us-east-2"  # Alterado de us-east-1 para us-east-2 (Ohio)
+  default     = "us-east-1"  # Corrigido para us-east-1 onde a chave existe
 }
 
 variable "project_name" {
@@ -25,12 +25,12 @@ variable "private_subnet_cidr" {
 
 variable "availability_zone" {
   description = "Zona de disponibilidade para as subnets"
-  default     = "us-east-2a"  # Alterado para corresponder à nova região us-east-2
+  default     = "us-east-1a"  # Corrigido para us-east-1a
 }
 
 variable "instance_type" {
   description = "Tipo de instância EC2"
-  default     = "t2.micro"  # Mudança para t2.micro (Free Tier)
+  default     = "t2.micro"  # Free Tier - 750 horas/mês grátis
 }
 
 variable "key_name" {
@@ -66,12 +66,12 @@ variable "app_port" {
 
 variable "use_rds" {
   description = "Usar RDS ou SQLite local"
-  default     = false
+  default     = false  # Manter false para evitar custos do RDS
 }
 
 variable "use_sqlite" {
   description = "Usar SQLite como banco de dados padrão"
-  default     = true
+  default     = true  # SQLite é gratuito e local
 }
 
 variable "sqlite_path" {
@@ -87,4 +87,14 @@ variable "local_test_mode" {
 variable "local_sqlite_path" {
   description = "Caminho do SQLite para teste local"
   default     = "./database.sqlite"
+}
+
+variable "enable_monitoring" {
+  description = "Habilitar monitoramento detalhado (pode gerar custos)"
+  default     = false
+}
+
+variable "delete_on_termination" {
+  description = "Deletar volumes EBS ao terminar a instância"
+  default     = true  # Evitar custos de armazenamento órfão
 }
